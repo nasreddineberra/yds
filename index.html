@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YDS Services - Nettoyage & Multi-services Rhône-Alpes</title>
+
+    <!-- LIGNES FAVICON -->
+    <!-- Favicon standard (tous navigateurs) -->
+    <link rel="icon" type="image/x-icon" href="images/favicon/favicon.ico">
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    
+    <!-- Apple Touch Icon (iPhone/iPad) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png">
+    
+    <!-- Android Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="images/favicon/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="images/favicon/android-chrome-512x512.png">
+    
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+
+    <!-- Couleur de la barre d'adresse (mobile) -->
+    <meta name="theme-color" content="#3BA5B5">
+    <meta name="msapplication-TileColor" content="#3BA5B5">
+    
+    <meta name="apple-mobile-web-app-title" content="YDS" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- 1. Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Alpine.js avec defer (attend le DOM) -->
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <!-- 3. AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- 4. CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ydsTeal: '#3BA5B5',   
+                        ydsOrange: '#CA4F25', 
+                        ydsGray: '#898989',   
+                        ydsDark: '#2D2D2D',   
+                        ydsLight: '#F8FAFB'   
+                    }
+                }
+            }
+        }
+    </script>
+    
+</head>
+<body class="font-sans text-ydsDark bg-slate-100 min-h-screen" 
+      x-data="ydsAppData" 
+      @scroll.window="isScrolled = (window.pageYOffset > 50)"
+      x-init="
+        // Watcher pour réinitialiser le scroll des guides
+        $watch('showGuideModal', value => { 
+          if(value) {
+            resetModalScroll('guide-modal-container');
+            document.body.style.overflow = 'hidden';
+          } else {
+            document.body.style.overflow = '';
+          }
+        });
+        $watch('activeGuide', value => { if(showGuideModal) resetModalScroll('guide-modal-container') });
+        // Watcher pour réinitialiser le scroll des services
+        $watch('showServiceModal', value => {
+          if(value) {
+            resetModalScroll('service-modal-container');
+            document.body.style.overflow = 'hidden';
+          } else {
+            document.body.style.overflow = '';
+          }
+        });
+        // Watcher pour réinitialiser le scroll du formulaire de contact lors du changement d'étape
+        $watch('contactCurrentStep', value => {
+          if(showContactModal) resetModalScroll('contact-modal-container');
+        });
+      ">
+
+    <div class="max-w-[1280px] mx-auto bg-white shadow-2xl relative overflow-hidden">
+
+        <header class="fixed max-w-[1280px] w-full z-50 transition-all duration-300 border-b overflow-hidden"
+                :class="isScrolled ? 'bg-white shadow-sm border-gray-100 py-3' : 'bg-transparent border-transparent py-5'">
+            <nav class="container mx-auto px-6 flex justify-between items-center transition-colors duration-300" 
+                 :class="isScrolled ? 'text-ydsDark' : 'text-white'">
+                
+                <div @click="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center space-x-2 cursor-pointer overflow-hidden">
+                    <div class="flex items-center group">
+                        <img src="https://lh3.googleusercontent.com/d/1-wgYc2FVP6wYj7iS6j46UTw_kOf2E3-i" 
+                             alt="Logo YDS Services" 
+                             class="h-24 lg:h-28 w-auto object-cover object-top">
+                    </div>
+                </div>
+
+                <ul class="hidden lg:flex space-x-8 font-semibold items-center">
+                    <li><a href="#accueil" class="nav-link transition-colors duration-300" :class="isScrolled ? 'text-ydsDark hover:text-ydsTeal' : 'text-white hover:text-ydsTeal'">Accueil</a></li>
+                    <li><a href="#services" class="nav-link transition-colors duration-300" :class="isScrolled ? 'text-ydsDark hover:text-ydsTeal' : 'text-white hover:text-ydsTeal'">Services</a></li>
+                    <li><a href="#engagements" class="nav-link transition-colors duration-300" :class="isScrolled ? 'text-ydsDark hover:text-ydsTeal' : 'text-white hover:text-ydsTeal'">Engagements</a></li>
+                    <li><a href="#realisations" class="nav-link transition-colors duration-300" :class="isScrolled ? 'text-ydsDark hover:text-ydsTeal' : 'text-white hover:text-ydsTeal'">Réalisations</a></li>
+                    <li><a href="#guides" class="nav-link transition-colors duration-300" :class="isScrolled ? 'text-ydsDark hover:text-ydsTeal' : 'text-white hover:text-ydsTeal'">Guides</a></li>
+                    <li><button @click="openContactModal()" class="btn-contact text-white px-6 py-2 rounded-full shadow-lg">Contact</button></li>
+                </ul>
+
+                <button @click="mobileMenu = !mobileMenu" class="lg:hidden focus:outline-none transition-colors duration-300" :class="isScrolled ? 'text-ydsDark' : 'text-white'">
+                    <i class="fa-solid" :class="mobileMenu ? 'fa-xmark' : 'fa-bars text-2xl'"></i>
+                </button>
+            </nav>
+
+            <div x-show="mobileMenu" x-cloak x-transition class="lg:hidden bg-white border-t border-gray-100 py-6 px-6 shadow-2xl absolute w-full left-0">
+                <ul class="space-y-6 text-center font-bold text-ydsDark">
+                    <li><a href="#accueil" @click="mobileMenu = false" class="block">Accueil</a></li>
+                    <li><a href="#services" @click="mobileMenu = false" class="block">Services</a></li>
+                    <li><a href="#engagements" @click="mobileMenu = false" class="block">Engagements</a></li>
+                    <li><a href="#realisations" @click="mobileMenu = false" class="block">Réalisations</a></li>
+                    <li><a href="#guides" @click="mobileMenu = false" class="block">Guides</a></li>
+                    <li><button @click="mobileMenu = false; openContactModal()" class="block text-ydsOrange uppercase tracking-widest w-full">Contact</button></li>
+                </ul>
+            </div>
+        </header>
+
+        <main>
+            <!-- Hero Section -->
+            <section id="accueil" class="relative h-screen flex items-center justify-center bg-ydsDark overflow-hidden">
+                <!-- Image de fond statique -->
+                <div class="absolute inset-0 z-0">
+                    <img src="https://images.unsplash.com/photo-1757840357483-6cbac66e4d6d?q=80&w=2070&auto=format&fit=crop" 
+                         class="w-full h-full object-cover" 
+                         alt="Équipe YDS Services - Nettoyage professionnel Rhône-Alpes">
+                    <div class="absolute inset-0 hero-overlay z-10"></div>
+                </div>
+
+                <!-- Contenu Hero -->
+                <div class="container mx-auto px-6 relative z-20 text-white" data-aos="zoom-out">
+                    <div class="max-w-5xl mx-auto text-center">
+                        <!-- Titre principal -->
+                        <h1 class="text-3xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight uppercase tracking-tighter">
+                            Votre partenaire confiance <br>
+                            <span class="text-ydsTeal">nettoyage</span> et <span class="text-ydsTeal">multi-services</span> <br>
+                            <span class="text-white">en région Rhône-Alpes</span>
+                        </h1>
+                        
+                        <!-- Sous-titre -->
+                        <p class="text-xl md:text-2xl font-medium mb-10 opacity-90 tracking-wide max-w-3xl mx-auto">
+                            YDS, la garantie d'un environnement sain et opérationnel
+                        </p>
+                        
+                        <!-- Boutons CTA -->
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                            <button @click="openContactModal()"
+                                    class="bg-ydsOrange text-white px-10 py-5 rounded-2xl font-black text-lg uppercase tracking-widest shadow-2xl hover:bg-ydsTeal hover:scale-105 transition-all">
+                                Obtenir un devis
+                            </button>
+                            <a href="#services" 
+                               class="bg-white/10 backdrop-blur-md border-2 border-white/30 text-white px-10 py-5 rounded-2xl font-black text-lg uppercase tracking-widest hover:bg-white/20 hover:border-white/50 transition-all">
+                                Nos Services
+                            </a>
+                        </div>
+                        
+                        <!-- Preuves sociales / Points clés -->
+                        <div class="flex flex-col md:flex-row items-center justify-center gap-8 text-sm md:text-base">
+                            <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20">
+                                <i class="fa-solid fa-award text-ydsTeal text-2xl"></i>
+                                <span class="font-bold">+15 ans d'expérience</span>
+                            </div>
+                            <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20">
+                                <i class="fa-solid fa-clock text-ydsTeal text-2xl"></i>
+                                <span class="font-bold">Intervention 24/7</span>
+                            </div>
+                            <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20">
+                                <i class="fa-solid fa-users text-ydsTeal text-2xl"></i>
+                                <span class="font-bold">+200 clients satisfaits</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scroll indicator -->
+                <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 animate-bounce">
+                    <a href="#services" class="text-white/60 hover:text-white transition-colors">
+                        <i class="fa-solid fa-chevron-down text-3xl"></i>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Services Section -->
+            <section id="services" class="py-24 bg-ydsLight">
+                <div class="container mx-auto px-6 text-center mb-16">
+                    <span class="text-ydsOrange font-black tracking-widest uppercase text-xs">Expertise Professionnelle</span>
+                    <h2 class="text-3xl md:text-4xl font-black text-ydsDark mt-2 uppercase tracking-tighter">Nos Services</h2>
+                    <div class="h-1 w-24 bg-ydsTeal mx-auto mt-4"></div>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 container mx-auto px-6">
+                    <template x-for="(service, key) in services" :key="key">
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 hover:shadow-xl transition-all group flex flex-col text-left" :class="'border-' + service.color" data-aos="fade-up">
+                            <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-6 group-hover:text-white transition-colors" :class="'bg-' + service.color + '/10 group-hover:bg-' + service.color">
+                                <i class="fa-solid text-2xl" :class="service.icon + ' text-' + service.color + ' group-hover:text-white'"></i>
+                            </div>
+                            <h4 class="text-xl font-black mb-3 uppercase leading-tight" x-text="service.title"></h4>
+                            <p class="text-ydsGray text-sm mb-6 flex-grow" x-text="service.description"></p>
+                            <button @click="activeService = service; showServiceModal = true" class="font-bold flex items-center gap-2 group/btn" :class="'text-' + service.color">
+                                En savoir plus… <i class="fa-solid fa-plus-circle group-hover/btn:rotate-90 transition-transform"></i>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <!-- Engagements Section -->
+            <section id="engagements" class="py-24 bg-white">
+                <div class="container mx-auto px-6 text-center mb-16">
+                    <span class="text-ydsOrange font-black tracking-widest uppercase text-xs">Nos Valeurs</span>
+                    <h2 class="text-3xl md:text-4xl font-black text-ydsDark mt-2 uppercase tracking-tighter">NOS ENGAGEMENTS</h2>
+                    <div class="h-1 w-24 bg-ydsTeal mx-auto mt-4"></div>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8 container mx-auto px-6">
+                    <div class="bg-ydsLight p-8 rounded-3xl shadow-sm border-t-4 border-ydsTeal hover:shadow-md transition-all flex flex-col text-center" data-aos="fade-up">
+                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6 mx-auto shadow-sm">
+                            <i class="fa-solid fa-handshake text-ydsTeal text-2xl"></i>
+                        </div>
+                        <h4 class="text-lg font-black mb-3 uppercase tracking-tight">Proximité & Écoute</h4>
+                        <p class="text-ydsGray text-sm">Un interlocuteur unique dédié à votre projet pour une compréhension parfaite de vos besoins spécifiques.</p>
+                    </div>
+                    <div class="bg-ydsLight p-8 rounded-3xl shadow-sm border-t-4 border-ydsOrange hover:shadow-md transition-all flex flex-col text-center" data-aos="fade-up" data-aos-delay="100">
+                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6 mx-auto shadow-sm">
+                            <i class="fa-solid fa-bolt text-ydsOrange text-2xl"></i>
+                        </div>
+                        <h4 class="text-lg font-black mb-3 uppercase tracking-tight">Réactivité Maximale</h4>
+                        <p class="text-ydsGray text-sm">Intervention rapide en cas d'urgence et souplesse opérationnelle pour s'adapter à vos contraintes de temps.</p>
+                    </div>
+                    <div class="bg-ydsLight p-8 rounded-3xl shadow-sm border-t-4 border-ydsGray hover:shadow-md transition-all flex flex-col text-center" data-aos="fade-up" data-aos-delay="200">
+                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-6 mx-auto shadow-sm">
+                            <i class="fa-solid fa-award text-ydsGray text-2xl"></i>
+                        </div>
+                        <h4 class="text-lg font-black mb-3 uppercase tracking-tight">Qualité Certifiée</h4>
+                        <p class="text-ydsGray text-sm">Contrôles réguliers et usage de produits respectueux pour garantir un environnement sain et impeccable.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Réalisations -->
+            <section id="realisations" class="py-24 bg-white">
+                <div class="container mx-auto px-6 text-center mb-16">
+                    <span class="text-ydsOrange font-black tracking-widest uppercase text-xs">Portfolio</span>
+                    <h2 class="text-3xl md:text-4xl font-black text-ydsDark uppercase tracking-tighter">Nos interventions - Clients</h2>
+                    <div class="h-1 w-24 bg-ydsOrange mx-auto mt-4"></div>
+                </div>
+                <div class="container mx-auto px-6">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] shadow-md" data-aos="fade-up">
+                            <img src="https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=400" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Bureaux Lyon">
+                            <div class="absolute inset-0 bg-ydsDark/70 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-white font-bold text-xs uppercase">Bureaux Lyon</span>
+                                <span class="text-ydsTeal text-[10px] font-bold">Nettoyage quotidien</span>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] shadow-md" data-aos="fade-up" data-aos-delay="100">
+                            <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=400" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Siège Social">
+                            <div class="absolute inset-0 bg-ydsDark/70 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-white font-bold text-xs uppercase">Siège Social</span>
+                                <span class="text-ydsOrange text-[10px] font-bold">Remise en état</span>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] shadow-md" data-aos="fade-up" data-aos-delay="150">
+                            <img src="https://images.unsplash.com/photo-1562664377-709f2c337eb2?q=80&w=400" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Showroom Auto">
+                            <div class="absolute inset-0 bg-ydsDark/70 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-white font-bold text-xs uppercase">Showroom Auto</span>
+                                <span class="text-ydsTeal text-[10px] font-bold">Vitrerie</span>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] shadow-md" data-aos="fade-up" data-aos-delay="200">
+                            <img src="https://images.unsplash.com/photo-1517502884422-41eaead166d4?q=80&w=400" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Coworking">
+                            <div class="absolute inset-0 bg-ydsDark/70 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-white font-bold text-xs uppercase">Coworking</span>
+                                <span class="text-ydsGray text-[10px] font-bold">Maintenance</span>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] shadow-md" data-aos="fade-up" data-aos-delay="250">
+                            <img src="https://images.unsplash.com/photo-1593824261342-fd6ee146f73d?q=80&w=400" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Clinique">
+                            <div class="absolute inset-0 bg-ydsDark/70 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-white font-bold text-xs uppercase">Clinique</span>
+                                <span class="text-ydsTeal text-[10px] font-bold">Désinfection</span>
+                            </div>
+                        </div>
+                        <div class="group relative overflow-hidden rounded-2xl aspect-[4/5] shadow-md" data-aos="fade-up" data-aos-delay="300">
+                            <img src="https://images.unsplash.com/photo-1622560531649-a3e91b181b68?q=80&w=400" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Banque">
+                            <div class="absolute inset-0 bg-ydsDark/70 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-white font-bold text-xs uppercase">Banque Lyon 2</span>
+                                <span class="text-ydsTeal text-[10px] font-bold">Nettoyage</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Guides Section -->
+            <section id="guides" class="py-24 bg-white">
+                <div class="container mx-auto px-6 text-center mb-16">
+                    <span class="text-ydsTeal font-black tracking-widest uppercase text-xs">Expertise & Conseils</span>
+                    <h2 class="text-3xl font-black text-ydsDark mt-2 uppercase tracking-tighter">Nos Guides Pratiques</h2>
+                    <div class="h-1 w-24 bg-ydsTeal mx-auto mt-4"></div>
+                </div>
+                <div class="container mx-auto px-6">
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <template x-for="guide in guides" :key="guide.id">
+                            <article class="guide-card bg-ydsLight rounded-3xl shadow-sm overflow-hidden flex flex-col group border border-gray-100" data-aos="fade-up">
+                                <div class="relative overflow-hidden h-48">
+                                    <img :src="guide.image" class="guide-img w-full h-full object-cover transition-transform duration-500" alt="Guide">
+                                    <div class="absolute top-4 left-4 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase" :class="'bg-' + guide.tagColor" x-text="guide.category"></div>
+                                </div>
+                                <div class="p-8 flex flex-col flex-grow text-left">
+                                    <h3 class="text-lg font-black mb-3 group-hover:text-ydsTeal transition-colors leading-tight uppercase" x-text="guide.title"></h3>
+                                    <p class="text-ydsGray text-sm mb-6 flex-grow line-clamp-3" x-text="guide.intro"></p>
+                                    <button @click="activeGuide = guide; showGuideModal = true" class="font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all" :class="'text-' + guide.tagColor">
+                                        Lire l'article <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </article>
+                        </template>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-ydsLight text-ydsDark pt-20 pb-10 border-t border-gray-200">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                    <!-- Identity -->
+                    <div class="flex flex-col justify-between h-full items-center text-center">
+                        <div class="flex items-start group cursor-pointer" @click="window.scrollTo({top: 0, behavior: 'smooth'})">
+                            <img src="https://lh3.googleusercontent.com/d/1uGLIcF27Rb2TLU3vBC0NfMTNotCR0wXR"
+                                 alt="Logo YDS Services"
+                                 class="h-40 w-auto">
+                        </div>
+                        <p class="text-ydsGray text-sm leading-relaxed mt-4">
+                            Nous accompagnons les entreprises<br>avec rigueur et proximité.
+                        </p>
+                    </div>
+
+                    <!-- Contact -->
+                    <div>
+                        <h4 class="text-ydsDark font-black uppercase tracking-widest text-xs mb-8 border-l-4 border-ydsGray pl-4">Nous Trouver</h4>
+                        <div class="space-y-6">
+                            <div class="flex items-start gap-4">
+                                <i class="fa-solid fa-location-dot text-ydsTeal mt-1"></i>
+                                <p class="text-sm font-bold text-ydsGray">69310 OULLINS-PIERRE-BENITE, FRANCE</p>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <i class="fa-solid fa-phone text-ydsOrange mt-1"></i>
+                                <a href="tel:0472000000" class="text-sm font-bold text-ydsGray hover:text-ydsOrange transition-colors">07 71 05 25 09</a>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <i class="fa-solid fa-envelope text-ydsTeal mt-1"></i>
+                                <button @click="openContactModal()" class="text-sm font-bold text-ydsGray hover:text-ydsTeal transition-colors">Contactez-nous</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div>
+                        <h4 class="text-ydsDark font-black uppercase tracking-widest text-xs mb-8 border-l-4 border-ydsTeal pl-4">Navigation</h4>
+                        <ul class="space-y-4 text-sm font-bold text-ydsGray">
+                            <li><a href="#accueil" class="hover:text-ydsTeal transition-colors">Retour en haut</a></li>
+                            <li><a href="#services" class="hover:text-ydsTeal transition-colors">Nos solutions</a></li>
+                            <li><a href="#engagements" class="hover:text-ydsTeal transition-colors">Nos engagements</a></li>
+                            <li><a href="#guides" class="hover:text-ydsTeal transition-colors">Expertise & Guides</a></li>
+                            <li><button @click="openContactModal()" class="hover:text-ydsTeal transition-colors text-left">Demander un devis</button></li>
+                        </ul>
+                    </div>
+
+                    <!-- Engagements -->
+                    <div>
+                        <h4 class="text-ydsDark font-black uppercase tracking-widest text-xs mb-8 border-l-4 border-ydsOrange pl-4">Nos Engagements</h4>
+                        <ul class="space-y-4 text-sm font-bold text-ydsGray">
+                            <li>Proximité locale</li>
+                            <li>Réactivité 24/7</li>
+                            <li>Qualité certifiée</li>
+                            <li>Eco-responsabilité</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+                    <p class="text-ydsGray text-[10px] font-bold uppercase tracking-widest">
+                        &copy; 2026 YDS Services. Tous droits réservés.
+                    </p>
+                    <ul class="flex gap-6 text-[10px] font-black uppercase tracking-widest text-ydsGray">
+                        <li><a href="mentions-legales.html" class="hover:text-ydsDark transition-colors">Mentions Légales</a></li>
+                        <li><a href="politique-confidentialite.html" class="hover:text-ydsDark transition-colors">Confidentialité</a></li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Modales Services -->
+        <div x-show="showServiceModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-ydsDark/90 backdrop-blur-md"></div>
+            <div class="relative bg-white w-full max-w-4xl rounded-[2rem] overflow-hidden shadow-2xl"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="scale-95 opacity-0"
+                 x-transition:enter-end="scale-100 opacity-100">
+                <div class="flex flex-col lg:flex-row h-full max-h-[90vh] overflow-y-auto">
+                    <!-- Image décorative -->
+                    <div class="lg:w-2/5 relative h-64 lg:h-auto"><img :src="activeService?.image" class="w-full h-full object-cover" alt="Service"></div>
+                    
+                    <!-- Contenu -->
+                    <div class="lg:w-3/5 p-8 lg:p-12 relative flex flex-col">
+                        <button @click="showServiceModal = false" class="absolute top-6 right-6 text-ydsGray hover:text-ydsDark"><i class="fa-solid fa-xmark text-2xl"></i></button>
+                        
+                        <div class="mb-4">
+                            <h3 class="text-3xl font-black uppercase tracking-tighter" x-text="activeService?.title"></h3>
+                            <div class="h-1 w-12 mt-2" :class="'bg-' + activeService?.color"></div>
+                        </div>
+
+                        <p class="text-ydsGray mb-8 leading-relaxed" x-text="activeService?.description"></p>
+                        
+                        <ul class="grid gap-3 mb-10">
+                            <template x-for="item in activeService?.details" :key="item">
+                                <li class="flex items-start gap-3 bg-ydsLight p-3 rounded-xl border-l-4 transition-all hover:translate-x-1" :class="'border-' + activeService?.color">
+                                    <i class="fa-solid fa-check-circle mt-1" :class="'text-' + activeService?.color"></i>
+                                    <span class="text-sm font-medium" x-text="item"></span>
+                                </li>
+                            </template>
+                        </ul>
+
+                        <!-- BOUTON DE DEVIS DANS LA POPUP -->
+                        <div class="mt-auto pt-6 border-t border-gray-100">
+                            <button @click="showServiceModal = false; openContactModal()"
+                               class="flex items-center justify-center gap-3 w-full py-5 rounded-2xl font-black uppercase tracking-widest text-white transition-all shadow-xl hover:scale-[1.02] bg-ydsOrange hover:bg-ydsTeal">
+                                <i class="fa-solid fa-file-invoice"></i>
+                                Obtenir un devis personnalisé
+                            </button>
+                            <p class="text-center text-[10px] text-ydsGray mt-3 font-bold uppercase tracking-widest opacity-60">Réponse sous 24h ouvrées</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Guides -->
+        <div x-show="showGuideModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-ydsDark/95 backdrop-blur-xl"></div>
+            <div id="guide-modal-container" class="relative bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto" x-transition>
+                <div>
+                    <div class="relative h-64 md:h-80">
+                        <img x-show="activeGuide" :src="activeGuide?.image" class="w-full h-full object-cover">
+                        <button @click="showGuideModal = false" class="absolute top-6 right-6 w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-ydsOrange transition-colors flex items-center justify-center">
+                            <i class="fa-solid fa-xmark text-xl"></i>
+                        </button>
+                    </div>
+
+                    <div class="p-8 md:p-16 text-left">
+                        <div class="mb-10">
+                            <span class="text-[10px] font-black uppercase tracking-[0.3em] px-4 py-2 rounded-full text-white inline-block mb-4" 
+                                  :class="'bg-' + (activeGuide?.tagColor || 'ydsTeal')" x-text="activeGuide?.category"></span>
+                            <h2 class="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none" x-text="activeGuide?.title"></h2>
+                            <div class="h-1.5 w-24 mt-8 rounded-full" :class="'bg-' + (activeGuide?.tagColor || 'ydsTeal')"></div>
+                        </div>
+
+                        <div class="space-y-12">
+                            <div class="prose max-w-none">
+                                <div class="bg-ydsLight p-8 md:p-12 rounded-[2rem] border-l-[12px] shadow-sm" :class="'border-' + (activeGuide?.tagColor || 'ydsTeal')">
+                                    <h4 class="font-black text-ydsDark uppercase text-xs mb-6 tracking-widest flex items-center gap-2">
+                                        <i class="fa-solid fa-book-open"></i> Guide Complet & Analyse Technique
+                                    </h4>
+                                    <div class="text-ydsDark leading-[1.8] text-base md:text-lg space-y-4" x-html="activeGuide?.content.replace(/\n/g, '<br>')"></div>
+                                </div>
+                            </div>
+
+                            <div class="bg-ydsDark text-white p-10 md:p-14 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
+                                <div class="flex items-center gap-4 mb-8">
+                                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-ydsTeal shadow-lg">
+                                        <i class="fa-solid fa-award text-white text-xl"></i>
+                                    </div>
+                                    <h4 class="text-xl md:text-2xl font-black uppercase tracking-widest">L'Expertise YDS</h4>
+                                </div>
+                                <p class="text-white/80 leading-relaxed italic text-lg md:text-xl font-light" x-text="activeGuide?.ydsApproach"></p>
+                            </div>
+                        </div>
+
+                        <div class="mt-20 flex flex-col md:flex-row items-center justify-center gap-4 border-t border-gray-100 pt-12">
+                            <button @click="showGuideModal = false; openContactModal()" class="bg-ydsOrange text-white px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl hover:bg-ydsTeal transition-all text-sm">
+                                Demander un devis personnalisé
+                            </button>
+                            <button @click="showGuideModal = false" class="bg-ydsGray text-white px-12 py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl hover:bg-ydsDark transition-all text-sm">
+                                Fermer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modale Formulaire de Contact -->
+        <div x-show="showContactModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-ydsDark/90 backdrop-blur-md"></div>
+            <div class="relative bg-white w-full max-w-4xl rounded-[2rem] overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="scale-95 opacity-0"
+                 x-transition:enter-end="scale-100 opacity-100">
+                
+                <div class="p-8 md:p-12">
+                    <!-- Bouton fermer -->
+                    <button @click="closeContactModal()" 
+                            class="absolute top-6 right-6 text-ydsGray hover:text-ydsDark transition-colors">
+                        <i class="fa-solid fa-xmark text-2xl"></i>
+                    </button>
+                    
+                    <!-- En-tête -->
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl md:text-4xl font-black uppercase tracking-tighter text-ydsDark mb-3">
+                            Contactez-nous
+                        </h2>
+                        <p class="text-ydsGray text-lg mb-6">
+                            Obtenez un devis personnalisé ou posez-nous vos questions
+                        </p>
+                        
+                        <!-- Urgent Banner -->
+                        <div class="bg-ydsOrange/10 border-2 border-ydsOrange p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-ydsOrange text-white rounded-xl flex items-center justify-center animate-pulse shrink-0">
+                                    <i class="fa-solid fa-phone-volume text-xl"></i>
+                                </div>
+                                <div class="text-left">
+                                    <h4 class="font-black uppercase tracking-tight text-ydsOrange text-sm md:text-base">URGENCE OU DEMANDE CRITIQUE ?</h4>
+                                    <p class="text-ydsDark font-medium text-xs md:text-sm leading-tight">Pour une intervention immédiate, privilégiez l'appel téléphonique.</p>
+                                </div>
+                            </div>
+                            <a href="tel:0472000000" class="bg-ydsOrange text-white px-6 py-3 rounded-xl font-black text-lg tracking-tight shadow-lg hover:bg-ydsDark transition-all whitespace-nowrap">
+                                07 71 05 25 09
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Indicateurs d'étapes (uniquement pour devis) -->
+                    <div x-show="contactFormType === 'devis'" class="mb-10">
+                        <div class="flex justify-between items-center relative">
+                            <div class="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -z-10"></div>
+                            <div class="absolute top-1/2 left-0 h-1 bg-ydsTeal transition-all duration-500 -z-10"
+                                 :style="`width: ${((contactCurrentStep - 1) / (contactTotalSteps - 1)) * 100}%`"></div>
+                            
+                            <template x-for="step in contactTotalSteps" :key="step">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm step-indicator"
+                                         :class="{
+                                            'step-active': contactCurrentStep === step,
+                                            'step-completed': contactCurrentStep > step,
+                                            'step-inactive': contactCurrentStep < step
+                                         }">
+                                        <span x-show="contactCurrentStep <= step" x-text="step"></span>
+                                        <i x-show="contactCurrentStep > step" class="fa-solid fa-check"></i>
+                                    </div>
+                                    <span class="text-xs mt-2 font-semibold text-ydsGray hidden md:block"
+                                          x-text="step === 1 ? 'Type' : step === 2 ? 'Service' : step === 3 ? 'Surface' : step === 4 ? 'Fréquence' : 'Contact'"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    
+                    <!-- ÉTAPE 1 : Type de demande -->
+                    <div x-show="contactCurrentStep === 1" x-transition class="form-slide-enter">
+                        <h3 class="text-2xl font-black uppercase tracking-tight text-ydsDark mb-6">
+                            Que souhaitez-vous faire ?
+                        </h3>
+                        
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col text-center"
+                                   :class="contactFormType === 'devis' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactFormType" value="devis" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 mx-auto group-hover:text-white transition-colors"
+                                     :class="contactFormType === 'devis' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-file-invoice text-lg transition-colors"
+                                       :class="contactFormType === 'devis' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactFormType === 'devis' ? 'text-white' : 'text-ydsDark'">Obtenir un devis</h4>
+                                <p class="text-xs" :class="contactFormType === 'devis' ? 'text-white/80' : 'text-ydsGray'">Estimation personnalisée gratuite</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col text-center"
+                                   :class="contactFormType === 'question' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactFormType" value="question" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 mx-auto group-hover:text-white transition-colors"
+                                     :class="contactFormType === 'question' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-comments text-lg transition-colors"
+                                       :class="contactFormType === 'question' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactFormType === 'question' ? 'text-white' : 'text-ydsDark'">Poser une question</h4>
+                                <p class="text-xs" :class="contactFormType === 'question' ? 'text-white/80' : 'text-ydsGray'">Nous sommes là pour vous aider</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col text-center"
+                                   :class="contactFormType === 'rdv' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactFormType" value="rdv" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 mx-auto group-hover:text-white transition-colors"
+                                     :class="contactFormType === 'rdv' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-calendar-days text-lg transition-colors"
+                                       :class="contactFormType === 'rdv' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactFormType === 'rdv' ? 'text-white' : 'text-ydsDark'">Prendre RDV</h4>
+                                <p class="text-xs" :class="contactFormType === 'rdv' ? 'text-white/80' : 'text-ydsGray'">Rencontrons-nous</p>
+                            </label>
+                        </div>
+                        
+                        <div x-show="contactErrors.formType" class="error-message mt-4 text-red-500 text-sm font-semibold">
+                            <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                            <span x-text="contactErrors.formType"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- ÉTAPE 2 : Service -->
+                    <div x-show="contactCurrentStep === 2 && contactFormType === 'devis'" x-transition class="form-slide-enter">
+                        <h3 class="text-2xl font-black uppercase tracking-tight text-ydsDark mb-6">
+                            Pour quel service ?
+                        </h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactService === 'nettoyage' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactService" value="nettoyage" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactService === 'nettoyage' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-spray-can-sparkles text-lg transition-colors" :class="contactService === 'nettoyage' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-base font-black mb-1 uppercase leading-tight"
+                                    :class="contactService === 'nettoyage' ? 'text-white' : 'text-ydsDark'">Nettoyage de bureaux</h4>
+                                <p class="text-xs" :class="contactService === 'nettoyage' ? 'text-white/80' : 'text-ydsGray'">Entretien quotidien, vitrerie, sols</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactService === 'chantier' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactService" value="chantier" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactService === 'chantier' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-helmet-safety text-lg transition-colors" :class="contactService === 'chantier' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-base font-black mb-1 uppercase leading-tight"
+                                    :class="contactService === 'chantier' ? 'text-white' : 'text-ydsDark'">Remise en état fin de chantier</h4>
+                                <p class="text-xs" :class="contactService === 'chantier' ? 'text-white/80' : 'text-ydsGray'">Nettoyage après travaux</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactService === 'maintenance' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactService" value="maintenance" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactService === 'maintenance' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-screwdriver-wrench text-lg transition-colors" :class="contactService === 'maintenance' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-base font-black mb-1 uppercase leading-tight"
+                                    :class="contactService === 'maintenance' ? 'text-white' : 'text-ydsDark'">Maintenance & Services</h4>
+                                <p class="text-xs" :class="contactService === 'maintenance' ? 'text-white/80' : 'text-ydsGray'">Petite maintenance, multi-services</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactService === 'immobilier' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactService" value="immobilier" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactService === 'immobilier' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-house-chimney text-lg transition-colors" :class="contactService === 'immobilier' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-base font-black mb-1 uppercase leading-tight"
+                                    :class="contactService === 'immobilier' ? 'text-white' : 'text-ydsDark'">Services immobilier</h4>
+                                <p class="text-xs" :class="contactService === 'immobilier' ? 'text-white/80' : 'text-ydsGray'">État des lieux, nettoyage sortie</p>
+                            </label>
+                        </div>
+                        
+                        <div x-show="contactErrors.service" class="error-message mt-4 text-red-500 text-sm font-semibold">
+                            <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                            <span x-text="contactErrors.service"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- ÉTAPE 3 : Surface -->
+                    <div x-show="contactCurrentStep === 3 && contactFormType === 'devis'" x-transition class="form-slide-enter">
+                        <h3 class="text-2xl font-black uppercase tracking-tight text-ydsDark mb-6">
+                            Quelle surface ?
+                        </h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactSurface === 'small' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactSurface" value="small" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactSurface === 'small' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-home text-lg transition-colors" :class="contactSurface === 'small' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactSurface === 'small' ? 'text-white' : 'text-ydsDark'">Moins de 100 m²</h4>
+                                <p class="text-xs" :class="contactSurface === 'small' ? 'text-white/80' : 'text-ydsGray'">Petit bureau, appartement</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactSurface === 'medium' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactSurface" value="medium" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactSurface === 'medium' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-building text-lg transition-colors" :class="contactSurface === 'medium' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactSurface === 'medium' ? 'text-white' : 'text-ydsDark'">100 à 500 m²</h4>
+                                <p class="text-xs" :class="contactSurface === 'medium' ? 'text-white/80' : 'text-ydsGray'">Bureau moyen, commerce</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactSurface === 'large' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactSurface" value="large" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactSurface === 'large' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-warehouse text-lg transition-colors" :class="contactSurface === 'large' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactSurface === 'large' ? 'text-white' : 'text-ydsDark'">500 à 1000 m²</h4>
+                                <p class="text-xs" :class="contactSurface === 'large' ? 'text-white/80' : 'text-ydsGray'">Grand bureau, entrepôt</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactSurface === 'xlarge' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactSurface" value="xlarge" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactSurface === 'xlarge' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-industry text-lg transition-colors" :class="contactSurface === 'xlarge' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactSurface === 'xlarge' ? 'text-white' : 'text-ydsDark'">Plus de 1000 m²</h4>
+                                <p class="text-xs" :class="contactSurface === 'xlarge' ? 'text-white/80' : 'text-ydsGray'">Site industriel, campus</p>
+                            </label>
+                        </div>
+                        
+                        <div x-show="contactErrors.surface" class="error-message mt-4 text-red-500 text-sm font-semibold">
+                            <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                            <span x-text="contactErrors.surface"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- ÉTAPE 4 : Fréquence -->
+                    <div x-show="contactCurrentStep === 4 && contactFormType === 'devis'" x-transition class="form-slide-enter">
+                        <h3 class="text-2xl font-black uppercase tracking-tight text-ydsDark mb-6">
+                            Quelle fréquence ?
+                        </h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactFrequency === 'ponctuel' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactFrequency" value="ponctuel" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactFrequency === 'ponctuel' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-calendar-day text-lg transition-colors" :class="contactFrequency === 'ponctuel' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactFrequency === 'ponctuel' ? 'text-white' : 'text-ydsDark'">Ponctuel</h4>
+                                <p class="text-xs" :class="contactFrequency === 'ponctuel' ? 'text-white/80' : 'text-ydsGray'">Une seule intervention</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactFrequency === 'quotidien' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactFrequency" value="quotidien" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactFrequency === 'quotidien' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-clock text-lg transition-colors" :class="contactFrequency === 'quotidien' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactFrequency === 'quotidien' ? 'text-white' : 'text-ydsDark'">Quotidien</h4>
+                                <p class="text-xs" :class="contactFrequency === 'quotidien' ? 'text-white/80' : 'text-ydsGray'">Tous les jours</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactFrequency === 'hebdo' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactFrequency" value="hebdo" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactFrequency === 'hebdo' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-calendar-week text-lg transition-colors" :class="contactFrequency === 'hebdo' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactFrequency === 'hebdo' ? 'text-white' : 'text-ydsDark'">Hebdomadaire</h4>
+                                <p class="text-xs" :class="contactFrequency === 'hebdo' ? 'text-white/80' : 'text-ydsGray'">1 fois par semaine</p>
+                            </label>
+
+                            <label class="radio-card p-3 rounded-3xl shadow-sm border-b-4 transition-all cursor-pointer group flex flex-col"
+                                   :class="contactFrequency === 'contrat' ? 'bg-ydsTeal border-ydsOrange shadow-ultra -translate-y-1' : 'bg-ydsLight border-gray-200 hover:shadow-xl'">
+                                <input type="radio" x-model="contactFrequency" value="contrat" class="hidden">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors"
+                                     :class="contactFrequency === 'contrat' ? 'bg-white' : 'bg-ydsTeal/10 group-hover:bg-ydsTeal'">
+                                    <i class="fa-solid fa-file-contract text-lg transition-colors" :class="contactFrequency === 'contrat' ? 'text-ydsOrange' : 'text-ydsTeal group-hover:text-white'"></i>
+                                </div>
+                                <h4 class="text-lg font-black mb-1 uppercase leading-tight"
+                                    :class="contactFrequency === 'contrat' ? 'text-white' : 'text-ydsDark'">Contrat annuel</h4>
+                                <p class="text-xs" :class="contactFrequency === 'contrat' ? 'text-white/80' : 'text-ydsGray'">Engagement long terme</p>
+                            </label>
+                        </div>
+                        
+                        <div x-show="contactErrors.frequency" class="error-message mt-4 text-red-500 text-sm font-semibold">
+                            <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                            <span x-text="contactErrors.frequency"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- ÉTAPE 5 : Coordonnées -->
+                    <div x-show="contactCurrentStep === 5" x-transition class="form-slide-enter">
+                        <h3 class="text-2xl font-black uppercase tracking-tight text-ydsDark mb-6">
+                            Vos coordonnées
+                        </h3>
+                        
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-bold text-ydsDark mb-2">
+                                    Nom complet <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" x-model="contactName" placeholder="Jean Dupont"
+                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-ydsDark font-medium"
+                                       :class="contactErrors.name ? 'border-red-500 error-shake' : ''">
+                                <div x-show="contactErrors.name" class="error-message mt-2 text-red-500 text-sm font-semibold">
+                                    <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                                    <span x-text="contactErrors.name"></span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-bold text-ydsDark mb-2">
+                                    Email <span class="text-red-500">*</span>
+                                </label>
+                                <input type="email" x-model="contactEmail" placeholder="jean.dupont@exemple.fr"
+                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-ydsDark font-medium"
+                                       :class="contactErrors.email ? 'border-red-500 error-shake' : ''">
+                                <div x-show="contactErrors.email" class="error-message mt-2 text-red-500 text-sm font-semibold">
+                                    <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                                    <span x-text="contactErrors.email"></span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-bold text-ydsDark mb-2">
+                                    Téléphone <span class="text-red-500">*</span>
+                                </label>
+                                <input type="tel" x-model="contactPhone" placeholder="06 12 34 56 78"
+                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-ydsDark font-medium"
+                                       :class="contactErrors.phone ? 'border-red-500 error-shake' : ''">
+                                <div x-show="contactErrors.phone" class="error-message mt-2 text-red-500 text-sm font-semibold">
+                                    <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                                    <span x-text="contactErrors.phone"></span>
+                                </div>
+                            </div>
+                            
+                            <div x-show="contactFormType !== 'devis'">
+                                <label class="block text-sm font-bold text-ydsDark mb-2">
+                                    Votre message <span class="text-red-500">*</span>
+                                </label>
+                                <textarea x-model="contactMessage" rows="5" placeholder="Décrivez votre demande..."
+                                          class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-ydsDark font-medium resize-none"
+                                          :class="contactErrors.message ? 'border-red-500 error-shake' : ''"></textarea>
+                                <div x-show="contactErrors.message" class="error-message mt-2 text-red-500 text-sm font-semibold">
+                                    <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                                    <span x-text="contactErrors.message"></span>
+                                </div>
+                            </div>
+                            
+                            <div x-show="contactFormType === 'devis'">
+                                <label class="block text-sm font-bold text-ydsDark mb-2">
+                                    Message complémentaire (optionnel)
+                                </label>
+                                <textarea x-model="contactMessage" rows="4" placeholder="Des précisions à ajouter ?"
+                                          class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-ydsDark font-medium resize-none"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Récapitulatif pour devis -->
+                        <div x-show="contactFormType === 'devis'" class="mt-6 p-5 bg-ydsLight rounded-2xl border-l-4 border-ydsTeal">
+                            <h4 class="text-lg font-black text-ydsDark mb-4">📋 Récapitulatif de votre demande</h4>
+                            <div class="space-y-2 text-sm">
+                                <p><strong>Type :</strong> Demande de devis</p>
+                                <p x-show="contactService"><strong>Service :</strong> <span x-text="contactService === 'nettoyage' ? 'Nettoyage de bureaux' : contactService === 'chantier' ? 'Fin de chantier' : contactService === 'maintenance' ? 'Maintenance' : 'Services immobilier'"></span></p>
+                                <p x-show="contactSurface"><strong>Surface :</strong> <span x-text="contactSurface === 'small' ? 'Moins de 100 m²' : contactSurface === 'medium' ? '100 à 500 m²' : contactSurface === 'large' ? '500 à 1000 m²' : 'Plus de 1000 m²'"></span></p>
+                                <p x-show="contactFrequency"><strong>Fréquence :</strong> <span x-text="contactFrequency === 'ponctuel' ? 'Ponctuel' : contactFrequency === 'quotidien' ? 'Quotidien' : contactFrequency === 'hebdo' ? 'Hebdomadaire' : 'Contrat annuel'"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons de navigation -->
+                    <div class="mt-8 flex justify-between items-center">
+                        <button @click="prevContactStep()" x-show="contactCurrentStep > 1"
+                                class="flex items-center gap-2 px-6 py-3 bg-gray-100 text-ydsDark font-bold rounded-xl hover:bg-gray-200 transition-all">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span>Précédent</span>
+                        </button>
+                        
+                        <div x-show="contactCurrentStep === 1"></div>
+                        
+                        <button @click="nextContactStep()" 
+                                x-show="contactCurrentStep < contactTotalSteps || (contactFormType !== 'devis' && contactCurrentStep < 5)"
+                                class="flex items-center gap-2 px-8 py-4 bg-ydsTeal text-white font-black uppercase tracking-wider rounded-xl hover:bg-opacity-90 transition-all shadow-lg hover:shadow-xl">
+                            <span>Suivant</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        
+                        <button @click="submitContactForm()" 
+                                x-show="contactCurrentStep === contactTotalSteps || (contactFormType !== 'devis' && contactCurrentStep === 5)"
+                                class="flex items-center gap-2 px-8 py-4 bg-ydsOrange text-white font-black uppercase tracking-wider rounded-xl hover:bg-opacity-90 transition-all shadow-lg hover:shadow-xl">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Envoyer</span>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-6 text-center text-sm text-ydsGray">
+                        <i class="fa-solid fa-lock mr-2"></i>
+                        Vos données sont protégées et ne seront jamais partagées avec des tiers.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    
+    <script>
+        window.addEventListener('load', function() {
+            AOS.init({ duration: 800, once: true, easing: 'ease-out' });
+
+            // Vérifier si on doit ouvrir le formulaire de contact
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('openContact') === 'true') {
+                // Attendre que Alpine.js soit initialisé
+                setTimeout(() => {
+                    const alpineComponent = Alpine.$data(document.body);
+                    if (alpineComponent && typeof alpineComponent.openContactModal === 'function') {
+                        alpineComponent.openContactModal();
+                        // Nettoyer l'URL
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+                }, 500);
+            }
+        });
+    </script>
+
+    <!-- Script personnalisé -->
+    <script src="script.js"></script>
+
+</body>
+</html>

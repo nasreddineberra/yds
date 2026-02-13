@@ -1,0 +1,217 @@
+/* ============================================
+   YDS SERVICES - Feuille de styles personnalisée
+   ============================================ */
+
+/* === VARIABLES CSS === */
+:root {
+    --color-teal: #3BA5B5;
+    --color-orange: #CA4F25;
+    --color-orange-hover: #a8421f;
+    --color-gray: #898989;
+    --color-dark: #2D2D2D;
+    --color-light: #F8FAFB;
+    
+    --transition-default: 0.3s ease;
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === UTILITAIRES ALPINE.JS === */
+[x-cloak] { 
+    display: none !important; 
+}
+
+/* === SCROLL SMOOTH POUR LES SECTIONS === */
+/* Ajustement pour header fixe */
+section {
+    scroll-margin-top: 100px; /* Header non-scrollé */
+}
+
+@media (min-width: 1024px) {
+    section {
+        scroll-margin-top: 85px; /* Header scrollé */
+    }
+}
+
+/* === NAVIGATION === */
+.nav-link { 
+    position: relative; 
+    transition: color var(--transition-default);
+}
+
+.nav-link::after { 
+    content: ''; 
+    position: absolute; 
+    width: 0; 
+    height: 2px; 
+    bottom: -4px; 
+    left: 0; 
+    background-color: var(--color-teal);
+    transition: width var(--transition-default);
+}
+
+.nav-link:hover::after { 
+    width: 100%; 
+}
+
+/* === HERO SECTION === */
+.hero-overlay { 
+    background: linear-gradient(
+        135deg, 
+        rgba(45, 45, 45, 0.4) 0%, 
+        rgba(45, 45, 45, 0.6) 100%
+    );
+}
+
+/* === BOUTONS === */
+.btn-contact { 
+    background-color: var(--color-orange);
+    transition: all var(--transition-smooth);
+}
+
+.btn-contact:hover { 
+    background-color: var(--color-orange-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(202, 79, 37, 0.4);
+}
+
+/* === CARTES GUIDES === */
+.guide-card:hover .guide-img { 
+    transform: scale(1.05);
+}
+
+/* === ANIMATIONS FADE === */
+.fade-enter { 
+    opacity: 0; 
+}
+
+.fade-enter-active { 
+    transition: opacity 1s ease-in-out; 
+}
+
+.fade-leave-active { 
+    transition: opacity 1s ease-in-out; 
+    position: absolute; 
+    inset: 0; 
+}
+
+.fade-leave-to { 
+    opacity: 0; 
+}
+
+/* === STYLES ADDITIONNELS RECOMMANDÉS === */
+
+/* Amélioration de la lisibilité */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Transitions douces pour les images */
+img {
+    transition: transform var(--transition-smooth);
+}
+
+/* Focus visible pour l'accessibilité */
+*:focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: 2px;
+}
+
+/* Amélioration du contraste des liens */
+a {
+    text-decoration: none;
+}
+
+/* Optimisation des performances d'animation */
+.guide-img {
+    will-change: transform;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    section {
+        scroll-margin-top: 80px;
+    }
+}
+
+/* === DARK MODE (optionnel pour le futur) === */
+/*
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-dark: #F8FAFB;
+        --color-light: #2D2D2D;
+    }
+}
+*/
+
+/* Indicateurs d'étapes */
+.step-indicator {
+    transition: all 0.3s ease;
+}
+
+.step-active {
+    background-color: #3BA5B5;
+    color: white;
+}
+
+.step-completed {
+    background-color: #10b981;
+    color: white;
+}
+
+.step-inactive {
+    background-color: #e5e7eb;
+    color: #6b7280;
+}
+
+/* Animation d'entrée des formulaires */
+.form-slide-enter {
+    animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Animation d'erreur (shake) */
+.error-shake {
+    animation: shake 0.4s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* Ombre ultra-prononcée pour les cartes sélectionnées */
+.shadow-ultra {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3), 
+                0 15px 25px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Message d'erreur avec animation */
+.error-message {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Style des inputs au focus */
+input:focus, 
+textarea:focus, 
+select:focus {
+    outline: none;
+    border-color: #3BA5B5;
+    box-shadow: 0 0 0 3px rgba(59, 165, 181, 0.1);
+}
